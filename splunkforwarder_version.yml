@@ -1,0 +1,13 @@
+---
+- hosts: splunk_uf
+  tasks:
+  - name: Validate existing splunkforwarder version
+    command: /opt/splunkforwarder/bin/splunk --version
+    register: splunkforwarder_version
+
+  - debug: var=splunkforwarder_version  
+
+  
+
+
+

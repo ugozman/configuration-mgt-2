@@ -1,0 +1,52 @@
+---
+- hosts: splunk_uf
+  tasks:
+  - name: Validate existing splunkforwarder version
+    command: /opt/splunkforwarder/bin/splunk --version
+
+  - debug: var=splunk_version
+
+  - name: Backup splunkforwarder
+    command: tar -cf /opt/splunk_backup /opt/splunkforwarder/etc
+
+  - name: Download Splunkforwarder Software Package
+    get_url:
+      url: https://download.splunk.com/products/universalforwarder/releases/9.2.0/linux/splunkforwarder-9.2.0-1fff88043d5f.x86_64.rpm
+      dest: /opt
+      mode: "0644"
+
+  - name: stop splunkforwarder service
+    command: /opt/splunkforwarder/bin/splunk stop
+    register: splunkforwarder_service
+
+  - name: Install latest splunk forwarder
+    yum:
+      name: /opt/splunkforwarder-9.2.0-1fff88043d5f.x86_64.rpm
+      state: present
+      disable_gpg_check: true
+
+  - name: Start Spunkforwarder and accept license
+    command: /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd password
+
+  - name: Stop Splunkforwarder Service
+    command: /opt/splunkforwarder/bin/splunk stop
+
+  - name: disable splunk service at boot time
+    command: /opt/splunkforwarder/bin/splunk disable boot-start
+
+  - name: Enable splunk service at boot time
+    command: /opt/splunkforwarder/bin/splunk enable boot-start
+
+  - name: Start Splunkforwarder Service
+    command: /opt/splunkforwarder/bin/splunk start
+    register: splunk_status
+
+  - debug: var=splunkforwarder_service_status
+
+  - name: Validate existing splunkforwarder version
+    command: /opt/splunkforwarder/bin/splunk --version
+    register: splunk_forwarder_latest_version
+
+  - debug: var=splunkforwarder_latest_version
+
+

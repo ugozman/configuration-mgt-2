@@ -1,0 +1,7 @@
+---
+- hosts: cm
+  become: true
+  tasks:
+   - name: Remove ClusterMaster from Maintenance Mode
+     become_user: splunk
+     command: /opt/splunk/bin/splunk disable maintenance-mode --answer-yes -auth admin:alikaman02

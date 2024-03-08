@@ -1,0 +1,7 @@
+---
+- hosts: cm
+  become: true
+  tasks:
+   - name: Put ClusterMaster in Maintenance Mode
+     become_user: splunk
+     command: /opt/splunk/bin/splunk enable maintenance-mode --answer-yes -auth admin:alikaman02

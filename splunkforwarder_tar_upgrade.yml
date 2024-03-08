@@ -1,0 +1,37 @@
+---
+- hosts: uf
+  become: true
+  tasks:
+   - name: Backup splunk etc directory
+     archive:
+       path: /opt/splunkforwarder/etc
+       dest: /opt/splunkforwarder_etc.tar.gz
+       format: gz
+       
+  
+   - name: Copy the Splunkforwarder tar file to /opt
+     copy:
+        src: splunkforwarder-9.1.3-d95b3299fa65-Linux-x86_64.tgz 
+        dest: /opt
+
+   - name: Stop Splunk Service
+     become_user: splunk
+     command: /opt/splunkforwarder/bin/splunk stop
+
+   - name: Extract splunk tar to /opt
+     ansible.builtin.unarchive:
+        src: /opt/splunkforwarder-9.1.3-d95b3299fa65-Linux-x86_64.tgz 
+        dest: /opt
+        remote_src: yes
+
+   - name: chown to splunk directory
+     file:
+       path: /opt/splunkforwarder
+       owner: splunk
+       group: splunk
+       recurse: yes
+
+   - name: Start Splunk service
+     become_user: splunk
+     command: /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes
+     

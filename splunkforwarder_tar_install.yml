@@ -1,0 +1,51 @@
+---
+- hosts: uf
+  become: true
+  tasks:
+
+    - name: Add the user splunk
+      ansible.builtin.user:
+       name: splunk
+       shell: /bin/bash
+
+    - name: Copy the Splunk Enterprise tar file to /opt
+      copy:
+         src: splunkforwarder-9.0.4-de405f4a7979-Linux-x86_64.tgz
+         dest: /opt
+
+    - name: Extract splunk tar to /opt
+      ansible.builtin.unarchive:
+        src: /opt/splunkforwarder-9.0.4-de405f4a7979-Linux-x86_64.tgz
+        dest: /opt
+        remote_src: yes
+
+    - name: chown to splunk directory
+      file:
+        path: /opt/splunkforwarder
+        owner: splunk
+        group: splunk
+        recurse: yes
+
+    - name: Start Splunk service
+      become_user: splunk
+      command: /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd alikaman02
+
+    - name: Stop Splunk Service
+      become_user: splunk
+      command: /opt/splunkforwarder/bin/splunk stop
+
+    - name: Start Splunk Service
+      command: /opt/splunkforwarder/bin/splunk enable boot-start -user splunk
+
+    - name: Start Splunk Service
+      become_user: splunk
+      command: /opt/splunkforwarder/bin/splunk start
+
+
+   #- name: Check Splunk Enterprise service.
+    # become_user: splunk
+     #command:
+     #   /opt/splunkforwarder/bin/splunk status
+     #register: service_splunk_status
+
+
