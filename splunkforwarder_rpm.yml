@@ -1,0 +1,43 @@
+---
+- hosts: uf
+  tasks:
+  - name: Download Splunkforwarder Software Package
+    get_url:
+      url: https://download.splunk.com/products/universalforwarder/releases/9.1.3/linux/splunkforwarder-9.1.3-d95b3299fa65.x86_64.rpm
+      dest: /opt
+      mode: "0644"
+
+  - name: Install Splunkforwarder Software Package
+    yum:
+      name: /opt/splunkforwarder-9.1.3-d95b3299fa65.x86_64.rpm
+      state: present
+      disable_gpg_check: true
+
+  - name: Accept Splunk License
+    command: /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd password
+
+  - name: Stop Splunkforwarder Service
+    command: /opt/splunkforwarder/bin/splunk stop
+
+  - name: disable splunk service at boot time
+    command: /opt/splunkforwarder/bin/splunk disable boot-start
+
+  - name: Enable splunk service at boot time
+    command: /opt/splunkforwarder/bin/splunk enable boot-start
+
+  - name: Change Splunkforwarder folder ownership
+    command: chown -R splunkfwd:splunkfwd /opt/splunkforwarder
+
+  - name: Forward data to Splunk Indexer
+    command: /opt/splunkforwarder/bin/splunk add forward-server 3.82.232.156:9997 -auth admin:password
+
+  - name: Configure Splunk sourcetypes for log_audit monitoring
+    command: /opt/splunkforwarder/bin/splunk add monitor /var/log/audit -sourcetype log-secure -auth admin:password
+
+  - name: Start Splunkforwarder Service
+    command: /opt/splunkforwarder/bin/splunk start
+    register: splunk_status
+
+  - debug:
+      var: splunk_status
+

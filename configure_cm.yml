@@ -1,0 +1,11 @@
+---
+- hosts: cm
+  become: true
+  tasks:
+    - name: Configure Splunk Enterprise as a Cluster Master
+      become_user: splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -secret alikaman02 -auth admin:password
+
+    - name: Restart Splunk Service
+      become_user: splunk
+      command: /opt/splunk/bin/splunk restart

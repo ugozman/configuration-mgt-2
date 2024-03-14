@@ -1,0 +1,11 @@
+---
+- hosts: idx
+  become: true
+  tasks:
+    - name: Configure Indexer as Client to the Master
+      become_user: splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://10.9.8.9:8089 -secret alikaman02 -replication_port 9100 -auth admin:alikaman02
+
+    - name: Restart Splunk Service
+      become_user: splunk
+      command: /opt/splunk/bin/splunk restart

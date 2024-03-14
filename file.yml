@@ -1,0 +1,13 @@
+---
+- hosts: web-server
+  tasks:
+  - name: Create a file
+    file:
+     path: /root/class.txt
+     state: touch
+     
+  - name: Write content into a file
+    copy:
+      content: "Hello guys. this is our firdt ansible automation session and i love it" 
+      dest: /root/class.txt 
+

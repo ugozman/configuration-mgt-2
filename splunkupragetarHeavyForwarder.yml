@@ -1,0 +1,37 @@
+---
+- hosts: Heavy Forwarders
+  become: true
+  tasks:
+   - name: Backup splunk etc directory
+     archive:
+       path: /opt/splunk/etc
+       dest: /opt/splunk_etc.tar.gz
+       format: gz
+
+    - name: Copy the Splunk Enterprise tar file to /opt
+      copy:
+         src: splunk-8.2.6.1-5f0da8f6e22c-Linux-x86_64.tgz
+         dest: /opt
+
+      - name: Stop Splunk Service
+        become_user: splunk_adm
+        command: /opt/splunk/bin/splunk stop
+      
+       - name: Extract splunk tar to /opt
+         ansible.builtin.unarchive:
+           src: /opt/splunk-8.2.6.1-5f0da8f6e22c-Linux-x86_64.tgz
+           dest: /opt
+           remote_src: yes
+
+
+    - name: chown to splunk directory
+      file:
+        path: /opt/splunk
+        owner: splunk_adm
+        group: splunk_adm
+        recurse: yes
+#
+    - name: Start Splunk service
+      become_user: splunk_adm
+      command: /opt/splunk/bin/splunk start --accept-license --answer-yes
+

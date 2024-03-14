@@ -1,0 +1,16 @@
+---
+- include: splunkupragetardeployer.yaml
+- include: splunkupragetardeploymentServer.yml
+- include: splunkupragetarSh1.yml
+- include: splunkupragetarSh2.yml
+- include: splunkupragetarSh3.yml
+- include: splunkupragetarSh4.yml
+- include: cm_enable__maintenance_mode.yml
+- include: splunkupragetarSite1.yml
+- include: cm_disable_maintenance_mode.yml
+- include: cm_enable__maintenance_mode.yml
+- include: splunkupragetarSite2.yml
+- include: cm_disable__maintenance_mode.yml
+- include: splunkupragetarHeavyForwarder.yml
+
+

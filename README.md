@@ -1,1 +1,0 @@
-# configuration-mgt-2

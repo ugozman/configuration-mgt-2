@@ -1,0 +1,7 @@
+- hosts: 10.9.8.250
+  become: true
+  tasks:
+   - name: Copy tar file to remote directory
+     ansible.builtin.copy:
+        src: /tmp/splunk_etc_tar--10.9.8.110.gz
+        dest: "/opt"

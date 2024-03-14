@@ -1,0 +1,92 @@
+--
+- hosts: splunk_uf3_upgrade
+  become: true
+  tasks:
+
+  - name: Confirm current splunk version
+    become_user: splunk
+    command:
+      /opt/splunkforwarder/bin/splunk version
+    register: splunk_version_status
+
+  - name: Report Splunk forwarder Status.
+    debug:
+       var: splunk_version_status.stdout_lines
+
+
+  - name: Stop Splunk forwarder service
+    command: /opt/splunkforwarder/bin/splunk stop
+    become_user: splunk
+
+  - name: Back up splunk configuration file
+    command: tar -cf /opt/splunk_backup.tgz /opt/splunkforwarder/etc
+
+  - name: copying splunk Universal Forwarder 7.3.4
+    copy:
+      src: /tmp/splunkforwarder-8.1.2-545206cc9f70-linux-2.6-x86_64.rpm
+      dest: /tmp/splunkforwarder-8.1.2-545206cc9f70-linux-2.6-x86_64.rpm
+
+  - name: Upgrade splunk forwarder
+    command: rpm -U /tmp/splunkforwarder-8.1.2-545206cc9f70-linux-2.6-x86_64.rpm
+
+  - name: Change Splunk ownership file
+    command: chown -R splunk:splunk /opt/splunkforwarder
+
+  - name: Get Splunk going
+    become_user: splunk
+    command: /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{ password }}
+
+# - name: Delete password file
+ # file:
+ # path: /opt/splunk/etc/passwd
+ # state: absent
+
+# - name: Restart Splunk to apply password
+# become_user: splunk
+# command: /opt/splunkforwarder/bin/splunk restart
+
+  - name: Check Splunk forwarder service.
+    become_user: splunk
+    command:
+      /opt/splunkforwarder/bin/splunk status
+    register: service_splunk_status
+
+  - name: Report Splunk forwarder Status.
+    debug:
+       var: service_splunk_status.stdout_lines
+
+  - name: Switch to root and enable boot user
+    command:
+      /opt/splunkforwarder/bin/splunk enable boot-start -user splunk
+    register: splunk_boot_status
+
+  - name: Report Splunk Boot-User.
+    debug:
+       var: splunk_boot_status.stdout_lines
+
+  - name: Change Splunk ownership file
+    command: chown -R splunk:splunk /opt/splunkforwarder
+
+  - name: Start splunk
+    command: /opt/splunkforwarder/bin/splunk start
+    become_user: splunk
+
+  - name: Check Splunk forwarder service.
+    become_user: splunk
+    command:
+      /opt/splunkforwarder/bin/splunk status
+    register: service_splunk_status
+
+  - name: Report Splunk forwarder Status.
+    debug:
+       var: service_splunk_status.stdout_lines
+
+  - name: Check Splunk forwarder service again.
+    become_user: splunk
+    command:
+      /opt/splunkforwarder/bin/splunk status
+    register: service_splunk_status
+
+  - name: Report Splunk forwarder Status again.
+    debug:
+       var: service_splunk_status.stdout_lines

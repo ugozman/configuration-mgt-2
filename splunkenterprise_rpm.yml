@@ -1,0 +1,38 @@
+---
+- hosts: splunk_server
+  tasks:
+  - name: Download Splunk Software Package
+    get_url:
+      url: https://download.splunk.com/products/splunk/releases/9.2.0/linux/splunk-9.2.0-1fff88043d5f.x86_64.rpm
+      dest: /opt
+      mode: '0644'
+
+  - name: Install Splunk Software Package
+    yum:
+      name: /opt/splunk-9.2.0-1fff88043d5f.x86_64.rpm
+      state: present
+      disable_gpg_check: true
+
+  - name: Accept Splunk License
+    command: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd password
+
+  - name: Start Splunk Service
+    command: /opt/splunk/bin/splunk start
+
+  - name: Change Splunk folder ownership
+    command: chown -R splunk:splunk /opt/splunk
+
+  - name: Stop Splunk Service
+    command: /opt/splunk/bin/splunk stop
+
+  - name: Enable splunk service at boot time
+    command: /opt/splunk/bin/splunk enable boot-start -user splunk
+
+  - name: Start splunk service
+    command: /opt/splunk/bin/splunk start
+
+  - name: Change Splunk folder ownership
+    command: chown -R splunk:splunk /opt/splunk
+
+  - name: Start splunk service
+    command: /opt/splunk/bin/splunk start
